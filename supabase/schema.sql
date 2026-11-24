@@ -14,3 +14,12 @@ returns void language sql as $$
 $$;
 
 revoke all on function public.increment_clicks(text) from public, anon, authenticated;
+
+create or replace function public.link_stats()
+returns table (total_links bigint, total_clicks bigint, clicked_links bigint)
+language sql stable as $$
+  select count(*), coalesce(sum(clicks), 0)::bigint, count(*) filter (where clicks > 0)
+  from public.links;
+$$;
+
+revoke all on function public.link_stats() from public, anon, authenticated;
